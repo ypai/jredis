@@ -1,2 +1,6 @@
 target/
 jredis.tmproj
+bin/
+.classpath
+.project
+.settings
