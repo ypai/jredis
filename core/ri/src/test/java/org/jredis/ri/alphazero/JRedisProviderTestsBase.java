@@ -25,8 +25,11 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
+
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.jredis.JRedis;
 import org.jredis.ObjectInfo;
 import org.jredis.RedisException;
@@ -35,6 +38,7 @@ import org.jredis.RedisType;
 import org.jredis.ZSetEntry;
 import org.jredis.protocol.Command;
 import org.jredis.ri.JRedisTestSuiteBase;
+import org.jredis.ri.alphazero.support.Convert;
 import org.jredis.ri.alphazero.support.DefaultCodec;
 import org.jredis.ri.alphazero.support.Log;
 import org.testng.annotations.Test;
@@ -670,6 +674,63 @@ public abstract class JRedisProviderTestsBase extends JRedisTestSuiteBase <JRedi
 		} 
 		catch (RedisException e) { fail(cmd + " ERROR => " + e.getLocalizedMessage(), e); }
 	}
+	
+	
+    /**
+     * Test method for {@link org.jredis.ri.alphazero.JRedisSupport#hvals(java.lang.String, java.io.Serializable)}.
+     */
+    @Test
+    public void testHmincrby() {
+        cmd = Command.HMINCRBY.code;
+        Log.log("TEST: %s command", cmd);
+        try {
+            provider.flushdb();
+            
+            LinkedHashMap<String,Integer> params = new LinkedHashMap<String,Integer>();
+            params.put("k0", 0);            
+            assertTrue( provider.hmincrby(keys.get(0), params)!=null, "hmincrby with k0, 0");            
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k0")), 0 );
+            
+            params.put("k1", 1);
+            params.put("k2", 2);
+            params.put("k100", 100);
+            assertTrue( provider.hmincrby(keys.get(0), params)!=null, "hmincrby with k0, 0; k1, 1; k2, 2; k100, 100");
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k0")), 0 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k1")), 1 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k2")), 2 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k100")), 100 );
+            
+            assertTrue( provider.hmincrby(keys.get(0), params)!=null, "hmincrby with k0, 0; k1, 1; k2, 2; k100, 100");
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k0")), 0 );
+            assertEquals( Convert.toLong(provider.hget(keys.get(0), "k1")), 2 );
+            assertEquals( Convert.toLong(provider.hget(keys.get(0), "k2")), 4 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k100")), 200 );
+            
+            assertTrue( provider.hmincrby(keys.get(0), params)!=null, "hmincrby with k0, 0; k1, 1; k2, 2; k100, 100");
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k0")), 0 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k1")), 3 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k2")), 6 );
+            assertEquals(  Convert.toLong(provider.hget(keys.get(0), "k100")), 300 );
+            
+            List<byte[]> hvals = provider.hvals(keys.get(0));
+            assertEquals( hvals.size(), 4, "value list length");
+            
+            List<String> hkeys = provider.hkeys(keys.get(0));
+            assertEquals( hkeys.size(), 4, "keys list length");
+            
+            for(String key : hkeys){
+                assertTrue(provider.hdel(keys.get(0), key), "deleting existing field should be true");
+            }
+            assertEquals(provider.hlen(keys.get(0)), 0, "hash should empty");
+            List<byte[]> hvals2 = provider.hvals(keys.get(0));
+            assertEquals(hvals2, null, "(api change) value list should be null"); // this used to return an empty set
+            
+            List<byte[]> hvals3 = provider.hvals("no-such-hash");
+            assertEquals( hvals3, null, "values list of non-existent hash should be null.");
+        } 
+        catch (RedisException e) { fail(cmd + " ERROR => " + e.getLocalizedMessage(), e); }
+    }// testHmincrby()
+	
 	
 	/**
 	 * Test method for {@link org.jredis.ri.alphazero.JRedisSupport#hvals(java.lang.String, java.io.Serializable)}.
