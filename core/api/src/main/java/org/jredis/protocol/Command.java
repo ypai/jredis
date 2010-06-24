@@ -123,7 +123,7 @@ public enum Command {
 	HGET 		(RequestType.KEY_VALUE, 	ResponseType.BULK),
     HSETNX 		(RequestType.KEY_KEY_VALUE, ResponseType.NUMBER),
     HMINCRBY    (RequestType.MULTI_KEY, ResponseType.MULTI_BULK),
-    HMSET 		(RequestType.MULTI_KEY, ResponseType.BOOLEAN),
+    HMSET 		(RequestType.MULTI_KEY, ResponseType.STATUS),
     HMGET 		(RequestType.MULTI_KEY, ResponseType.MULTI_BULK),
     HEXISTS 	(RequestType.KEY_VALUE, 	ResponseType.BOOLEAN),
 	HDEL 		(RequestType.KEY_VALUE, 	ResponseType.BOOLEAN),

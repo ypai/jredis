@@ -972,7 +972,6 @@ public interface JRedis {
      * @param fields is a LinkedHashMap so that results returned are in predictable order
      * @return
      */
-    @Redis(versions = "2.1.n")
     public List<Long> hmincrby(String hashKey, LinkedHashMap<String, Integer> fields)
             throws RedisException;
 
@@ -981,8 +980,7 @@ public interface JRedis {
      * @param fields
      * @return
      */
-    @Redis(versions = "1.3.n")
-    public boolean hmset(String hashKey, Map<String, byte[]> fields)
+    public void hmset(String hashKey, Map<String, byte[]> fields)
             throws RedisException;
 
     /**

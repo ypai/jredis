@@ -733,7 +733,7 @@ public abstract class JRedisSupport implements JRedis {
         return resp;
     }
 
-    public boolean hmset(String hashKey, Map<String, byte[]> fields)
+    public void hmset(String hashKey, Map<String, byte[]> fields)
             throws RedisException {
         byte[] hashKeyBytes = null;
         if ((hashKeyBytes = getKeyBytes(hashKey)) == null)
@@ -749,17 +749,19 @@ public abstract class JRedisSupport implements JRedis {
             mappings[i++] = e.getValue();
         }
 
+        this.serviceRequest(Command.HMSET, mappings);
+        
         /* boolean ValueRespose */
-        boolean response;
-        try {
-            ValueResponse valResponse = (ValueResponse) this.serviceRequest(
-                    Command.HMSET, mappings);
-            response = valResponse.getBooleanValue();
-        } catch (ClassCastException e) {
-            throw new ProviderException("Expecting a ValueResponse here => "
-                    + e.getLocalizedMessage(), e);
-        }
-        return response;
+//        boolean response;
+//        try {
+//            ValueResponse valResponse = (ValueResponse) this.serviceRequest(
+//                    Command.HMSET, mappings);
+//            response = valResponse.getBooleanValue();
+//        } catch (ClassCastException e) {
+//            throw new ProviderException("Expecting a ValueResponse here => "
+//                    + e.getLocalizedMessage(), e);
+//        }
+//        return response;
 
     }
 
